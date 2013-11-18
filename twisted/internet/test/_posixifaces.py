@@ -144,5 +144,10 @@ def posixGetLinkLocalIPv6Addresses():
         interface = nativeString(interface)
         address = nativeString(address)
         if family == socket.AF_INET6 and address.startswith('fe80:'):
+            ## kill embedded interface indices in link-local scoped addresses
+            ## http://www.freebsd.org/doc/en/books/developers-handbook/ipv6.html#ipv6-scope-index
+            l = address.split(':')
+            l[1] = ''
+            address = ':'.join(l)
             retList.append('%s%%%s' % (address, interface))
     return retList
