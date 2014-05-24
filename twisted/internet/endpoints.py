@@ -1784,7 +1784,7 @@ def connectProtocol(endpoint, protocol):
 
 
 
-if _PY3:
+if False and _PY3:
     for name in __all__[:]:
         if name not in __all3__:
             __all__.remove(name)

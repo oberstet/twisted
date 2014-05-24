@@ -97,6 +97,7 @@ modules = [
     "twisted.python.randbytes",
     "twisted.python.reflect",
     "twisted.python.runtime",
+    "twisted.python.systemd",
     "twisted.python.test",
     "twisted.python.test.deprecatedattributes",
     "twisted.python.test.modules_helpers",

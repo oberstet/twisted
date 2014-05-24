@@ -10,7 +10,10 @@ Different styles of persisted objects.
 
 # System Imports
 import types
-import copy_reg
+try:
+   import copy_reg
+except ImportError:
+   import copyreg as copy_reg
 import copy
 import inspect
 import sys
@@ -18,7 +21,10 @@ import sys
 try:
     import cStringIO as StringIO
 except ImportError:
-    import StringIO
+    try:
+        import StringIO
+    except ImportError:
+        from six import StringIO
 
 # Twisted Imports
 from twisted.python import log

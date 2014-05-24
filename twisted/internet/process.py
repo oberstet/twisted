@@ -26,7 +26,7 @@ except ImportError:
 from zope.interface import implements
 
 from twisted.python import log, failure
-from twisted.python.util import switchUID
+#from twisted.python.util import switchUID
 from twisted.internet import fdesc, abstract, error
 from twisted.internet.main import CONNECTION_LOST, CONNECTION_DONE
 from twisted.internet._baseprocess import BaseProcess
@@ -100,7 +100,7 @@ def detectLinuxBrokenPipeBehavior():
     os.close(w)
 
 # Call at import time
-detectLinuxBrokenPipeBehavior()
+#detectLinuxBrokenPipeBehavior()
 
 
 class ProcessWriter(abstract.FileDescriptor):
@@ -298,7 +298,7 @@ class _BaseProcess(BaseProcess, object):
         try:
             try:
                 pid, status = os.waitpid(self.pid, os.WNOHANG)
-            except OSError, e:
+            except OSError as e:
                 if e.errno == errno.ECHILD:
                     # no child process
                     pid = None
@@ -339,7 +339,7 @@ class _BaseProcess(BaseProcess, object):
             raise ProcessExitedAlready()
         try:
             os.kill(self.pid, signalID)
-        except OSError, e:
+        except OSError as e:
             if e.errno == errno.ESRCH:
                 raise ProcessExitedAlready()
             else:
@@ -449,7 +449,7 @@ class _BaseProcess(BaseProcess, object):
             # set the UID before I actually exec the process
             os.setuid(0)
             os.setgid(0)
-            switchUID(uid, gid)
+            #switchUID(uid, gid)
         os.execvpe(executable, args, environment)
 
 
@@ -596,7 +596,7 @@ class Process(_BaseProcess):
     code is not cross-platform. (also, windows can only select
     on sockets...)
     """
-    implements(IProcessTransport)
+    #implements(IProcessTransport)
 
     debug = False
     debug_child = False
@@ -642,7 +642,7 @@ class Process(_BaseProcess):
                         }
 
         debug = self.debug
-        if debug: print "childFDs", childFDs
+        if debug: print("childFDs", childFDs)
 
         _openedPipes = []
         def pipe():
@@ -654,24 +654,24 @@ class Process(_BaseProcess):
         fdmap = {} # maps childFD to parentFD
         try:
             for childFD, target in childFDs.items():
-                if debug: print "[%d]" % childFD, target
+                if debug: print("[%d]" % childFD, target)
                 if target == "r":
                     # we need a pipe that the parent can read from
                     readFD, writeFD = pipe()
-                    if debug: print "readFD=%d, writeFD=%d" % (readFD, writeFD)
+                    if debug: print("readFD=%d, writeFD=%d" % (readFD, writeFD))
                     fdmap[childFD] = writeFD     # child writes to this
                     helpers[childFD] = readFD    # parent reads from this
                 elif target == "w":
                     # we need a pipe that the parent can write to
                     readFD, writeFD = pipe()
-                    if debug: print "readFD=%d, writeFD=%d" % (readFD, writeFD)
+                    if debug: print("readFD=%d, writeFD=%d" % (readFD, writeFD))
                     fdmap[childFD] = readFD      # child reads from this
                     helpers[childFD] = writeFD   # parent writes to this
                 else:
                     assert type(target) == int, '%r should be an int' % (target,)
                     fdmap[childFD] = target      # parent ignores this
-            if debug: print "fdmap", fdmap
-            if debug: print "helpers", helpers
+            if debug: print("fdmap", fdmap)
+            if debug: print("helpers", helpers)
             # the child only cares about fdmap.values()
 
             self._fork(path, uid, gid, executable, args, environment, fdmap=fdmap)
@@ -761,7 +761,7 @@ class Process(_BaseProcess):
         # be moved to their appropriate positions in the child (the targets
         # of fdmap, i.e. fdmap.values() )
 
-        if debug: print >>errfd, "fdmap", fdmap
+        if debug: print(errfd, "fdmap", fdmap)
         childlist = fdmap.keys()
         childlist.sort()
 
@@ -769,7 +769,7 @@ class Process(_BaseProcess):
             target = fdmap[child]
             if target == child:
                 # fd is already in place
-                if debug: print >>errfd, "%d already in place" % target
+                if debug: print(errfd, "%d already in place" % target)
                 fdesc._unsetCloseOnExec(child)
             else:
                 if child in fdmap.values():
@@ -777,14 +777,14 @@ class Process(_BaseProcess):
                     # still needs the fd it wants to target. We must preserve
                     # that old fd by duping it to a new home.
                     newtarget = os.dup(child) # give it a safe home
-                    if debug: print >>errfd, "os.dup(%d) -> %d" % (child,
-                                                                   newtarget)
+                    if debug: print(errfd, "os.dup(%d) -> %d" % (child,
+                                                                   newtarget))
                     os.close(child) # close the original
                     for c, p in fdmap.items():
                         if p == child:
                             fdmap[c] = newtarget # update all pointers
                 # now it should be available
-                if debug: print >>errfd, "os.dup2(%d,%d)" % (target, child)
+                if debug: print(errfd, "os.dup2(%d,%d)" % (target, child))
                 os.dup2(target, child)
 
         # At this point, the child has everything it needs. We want to close
@@ -800,7 +800,7 @@ class Process(_BaseProcess):
             if not fd in old:
                 if not fd in fdmap.keys():
                     old.append(fd)
-        if debug: print >>errfd, "old", old
+        if debug: print(errfd, "old", old)
         for fd in old:
             os.close(fd)
 
@@ -917,7 +917,7 @@ class PTYProcess(abstract.FileDescriptor, _BaseProcess):
     """
     An operating-system Process that uses PTY support.
     """
-    implements(IProcessTransport)
+    #implements(IProcessTransport)
 
     status = -1
     pid = None
